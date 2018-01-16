@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 
 from archivebot import bot
 
@@ -73,6 +74,32 @@ class TestExtraction(unittest.TestCase):
 		url = 'https://www.google.com/about.html'
 		text = self.body.replace('%url%', url)
 		self.assertEqual(len(bot.extract_urls(text)), 0)
+
+
+class TestBot(unittest.TestCase):
+	def setUp(self):
+		self.mock_submission = Mock(selftext='abc', comment_sort='', url='')
+		self.mock_comment = Mock(body='xyz')
+		self.mock_submission.reply = Mock(return_value=None)
+		self.mock_comment.reply = Mock(return_value=None)
+
+	def test_RedditPost_GivenSubmission_PullsTextFromSelftext(self):
+		post = bot.RedditPost(self.mock_submission)
+		self.assertEqual(post.text, self.mock_submission.selftext)
+
+	def test_RedditPost_GivenComment_PullsTextFromBody(self):
+		post = bot.RedditPost(self.mock_comment)
+		self.assertEqual(post.text, self.mock_comment.body)
+
+	def test_RedditPost_ReplyToSubmission_CallsPrawReply(self):
+		post = bot.RedditPost(self.mock_submission)
+		post.reply('')
+		self.mock_submission.reply.assert_called()
+
+	def test_RedditPost_ReplyToComment_CallsPrawReply(self):
+		post = bot.RedditPost(self.mock_comment)
+		post.reply('')
+		self.mock_comment.reply.assert_called()
 
 
 if __name__ == '__main__':
