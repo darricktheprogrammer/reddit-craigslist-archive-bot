@@ -1,3 +1,4 @@
+from copy import deepcopy
 import unittest
 from unittest.mock import Mock
 
@@ -100,6 +101,138 @@ class TestBot(unittest.TestCase):
 		post = bot.RedditPost(self.mock_comment)
 		post.reply('')
 		self.mock_comment.reply.assert_called()
+
+
+# This is outside the class to help preserve formatting while still being able
+# to preserve indentation
+expected_format_with_multiple_images = '''This Craigslist post has been archived so it can still be viewed after expiration.
+
+[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)
+
+
+> ### Post title ###
+>
+> Post description line 1.
+>
+> Post description line 2.
+>
+> [image 1](https://i.imgur.com/abcd001.jpg) | [image 2](https://i.imgur.com/abcd002.jpg) | [image 3](https://i.imgur.com/abcd001.jpg)
+
+***
+
+[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'''
+
+expected_format_with_single_image = '''This Craigslist post has been archived so it can still be viewed after expiration.
+
+[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)
+
+
+> ### Post title ###
+>
+> Post description line 1.
+>
+> Post description line 2.
+>
+> [image 1](https://i.imgur.com/abcd001.jpg)
+
+***
+
+[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'''
+
+expected_format_with_no_images = '''This Craigslist post has been archived so it can still be viewed after expiration.
+
+[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)
+
+
+> ### Post title ###
+>
+> Post description line 1.
+>
+> Post description line 2.
+
+***
+
+[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'''
+
+
+class TestFormat(unittest.TestCase):
+	def setUp(self):
+		images = [
+			'https://i.imgur.com/abcd001.jpg',
+			'https://i.imgur.com/abcd002.jpg',
+			'https://i.imgur.com/abcd003.jpg'
+			]
+		self.ad = Mock(
+			body='Post description line 1.\n\nPost description line 2.',
+			url='http://indianapolis.craigslist.org/bar/d/bears/6451661128.html',
+			title='Post title'
+			)
+		self.archive = bot.Archive(
+			'https://imgur.com/a/zzzz1', 'xxx',
+			self.ad, 'https://i.imgur.com/abcd000.jpg',
+			images=images)
+
+	def test_Formatter_GivenArchive_FormatsTitle(self):
+		formatter = bot.PostFormatter()
+		self.assertIn('### Post title ###', formatter.format(self.archive))
+
+	def test_Formatter_GivenArchive_FormatsTitleAsQuote(self):
+		formatter = bot.PostFormatter()
+		self.assertIn('> ### Post title ###', formatter.format(self.archive))
+
+	def test_Formatter_GivenOriginalPost_FormatsOriginalPost(self):
+		formatter = bot.PostFormatter()
+		linktext = '[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html)'
+		self.assertIn(linktext, formatter.format(self.archive))
+
+	def test_Formatter_GivenAlbumUrl_FormatsAlbumUrl(self):
+		formatter = bot.PostFormatter()
+		linktext = '[imgur album](https://imgur.com/a/zzzz1)'
+		self.assertIn(linktext, formatter.format(self.archive))
+
+	def test_Formatter_GivenScreenshot_FormatsScreenshot(self):
+		formatter = bot.PostFormatter()
+		linktext = '[screenshot](https://i.imgur.com/abcd000.jpg)'
+		self.assertIn(linktext, formatter.format(self.archive))
+
+	def test_Formatter_GivenAdBody_FormatsAdBody(self):
+		formatter = bot.PostFormatter()
+		text = 'Post description line 1'
+		self.assertIn(text, formatter.format(self.archive))
+
+	def test_Formatter_GivenAdBody_FormatsAdBodyAsQuote(self):
+		formatter = bot.PostFormatter()
+		text = '> Post description line 1'
+		self.assertIn(text, formatter.format(self.archive))
+
+	def test_Formatter_GivenMultiLineAdBody_FormatsAllLinesAsQuote(self):
+		formatter = bot.PostFormatter()
+		text = '> Post description line 1.\n>\n> Post description line 2.'
+		self.assertIn(text, formatter.format(self.archive))
+
+	def test_Formatter_GivenMultipleImages_FormatsImages(self):
+		formatter = bot.PostFormatter()
+		text = '[image 1](https://i.imgur.com/abcd001.jpg) | [image 2](https://i.imgur.com/abcd002.jpg) | [image 3](https://i.imgur.com/abcd003.jpg)'
+		self.assertIn(text, formatter.format(self.archive))
+
+	def test_Formatter_GivenImage_FormatsImagesAsQuote(self):
+		formatter = bot.PostFormatter()
+		a = deepcopy(self.archive)
+		a.images = a.images[:1]
+		text = '> [image 1](https://i.imgur.com/abcd001.jpg)'
+		self.assertIn(text, formatter.format(a))
+
+	def test_Formatter_GivenMultipleImage_FormatsImagesAsQuote(self):
+		formatter = bot.PostFormatter()
+		text = '> [image 1](https://i.imgur.com/abcd001.jpg) | [image 2](https://i.imgur.com/abcd002.jpg) | [image 3](https://i.imgur.com/abcd003.jpg)'
+		self.assertIn(text, formatter.format(self.archive))
+
+	def test_Formatter_GivenNoImages_HasNoTrailingQuoteMarks(self):
+		formatter = bot.PostFormatter()
+		a = deepcopy(self.archive)
+		a.images = []
+		self.assertIn('> Post description line 2.\n', formatter.format(a))
+		self.assertNotIn('> Post description line 2.\n>', formatter.format(a))
 
 
 if __name__ == '__main__':

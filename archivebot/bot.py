@@ -85,3 +85,61 @@ class Archive(object):
 		self.screenshot = screenshot
 		self.images = images or []
 
+
+class PostFormatter(object):
+	"""
+	Formats a RedditPost in markdown to reply to the original post.
+
+	The Formatter knows about an Archive and uses its properties to create a
+	formatted reply.
+	"""
+	default_format = (
+		'This Craigslist post has been archived so it can continue to be viewed after expiration.\n\n'
+		'%ORIGINALPOST% | %IMGURALBUM% | %SCREENSHOT%\n\n'
+		'%QUOTEDSECTION%\n\n'
+		'***\n\n'
+		'[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'
+		)
+
+	def __init__(self):
+		super(PostFormatter, self).__init__()
+		# init can be changed later to accept different formats
+		self._fmt = self.default_format
+
+	def format(self, archive):
+		ad_title = self._h3(archive.ad.title)
+		original_post = self._format_link('original post', archive.ad.url)
+		album = self._format_link('imgur album', archive.url)
+		screenshot = self._format_link('screenshot', archive.screenshot)
+		ad_body = archive.ad.body
+		images = self._format_link_list(archive.images)
+		quoted_section = [ad_title, ad_body]
+		if images:
+			quoted_section.append(images)
+		quoted_section = self._quote('\n\n'.join(quoted_section))
+
+		reply = self._fmt.replace('%ORIGINALPOST%', original_post)
+		reply = reply.replace('%IMGURALBUM%', album)
+		reply = reply.replace('%SCREENSHOT%', screenshot)
+		reply = reply.replace('%QUOTEDSECTION%', quoted_section)
+		return reply
+
+	def _replace(self, original, placeholder, newtext):
+		return original.replace(placeholder, newtext)
+
+	def _format_link(self, linktext, url):
+		return '[{}]({})'.format(linktext, url)
+
+	def _quote(self, text):
+		lines = ['> {}'.format(line) if line else '>' for line in text.splitlines()]
+		return '\n'.join(lines)
+
+	def _h3(self, text):
+		return '### {} ###'.format(text)
+
+	def _format_link_list(self, images):
+		markdown_images = []
+		for i, image in enumerate(images):
+			markdown_link = self._format_link('image {}'.format(i + 1), image)
+			markdown_images.append(markdown_link)
+		return ' | '.join(markdown_images)
