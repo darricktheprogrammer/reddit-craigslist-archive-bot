@@ -57,3 +57,31 @@ class RedditPost(object):
 			A new comment post made in reply to this post.
 		"""
 		return self._original_post.reply(body)
+
+
+class Archive(object):
+	"""
+	Representation of an Imgur album in Archive format.
+
+	Args:
+		url (String): The url to the entire Imgur album
+		title (String): The title of the Imgur album. It should be something
+			along the lines of
+			`reddit-cl-bot archive $CraigslistAd.id`
+		ad (CraigslistAd, AdCache): The original ad that is being archived
+		screenshot (String): Direct url to the Craigslist post screenshot which
+			is the first image in the album.
+	Kwargs:
+		images (List): (optional) A list of direct urls to the images found in
+						the Craigslist post.
+	Returns:
+		Archive
+	"""
+	def __init__(self, url, title, ad, screenshot, images=None):
+		super(Archive, self).__init__()
+		self.url = url
+		self.title = title
+		self.ad = ad
+		self.screenshot = screenshot
+		self.images = images or []
+
