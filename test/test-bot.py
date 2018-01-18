@@ -1,8 +1,13 @@
-from copy import deepcopy
 import unittest
+import logging
+from copy import deepcopy
 from unittest.mock import Mock
 
 from archivebot import bot
+
+
+# disable application logging during tests
+logging.disable(logging.CRITICAL)
 
 
 class TestExtraction(unittest.TestCase):
@@ -101,6 +106,31 @@ class TestBot(unittest.TestCase):
 		post = bot.RedditPost(self.mock_comment)
 		post.reply('')
 		self.mock_comment.reply.assert_called()
+
+
+class TestPageRequest(unittest.TestCase):
+	def setUp(self):
+		self.url = 'http://indianapolis.craigslist.org/bar/d/bears/6451661128.html'
+
+	def test_RequestPage_GivenValidUrl_ReturnsTextOfPage(self):
+		response = Mock(ok=True, text='<html source>')
+		with unittest.mock.patch('archivebot.bot.requests.get') as patch:
+			patch.return_value = response
+			self.assertEqual('<html source>', bot.request_page(self.url))
+
+	def test_RequestPage_GivenInvalidUrl_RaisesError(self):
+		response = Mock(status_code=404, ok=False)
+		with unittest.mock.patch('archivebot.bot.requests.get') as patch:
+			patch.return_value = response
+			with self.assertRaises(bot.PageNotFoundError):
+				bot.request_page(self.url)
+
+	def test_RequestPage_ServerError_RaisesError(self):
+		response = Mock(status_code=500, ok=False)
+		with unittest.mock.patch('archivebot.bot.requests.get') as patch:
+			patch.return_value = response
+			with self.assertRaises(bot.PageUnavailableError):
+				bot.request_page(self.url)
 
 
 class TestFormat(unittest.TestCase):
