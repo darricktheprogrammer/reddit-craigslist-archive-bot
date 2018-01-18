@@ -21,6 +21,9 @@ class BaseCraigslistAd(object):
 	Kwargs:
 		images (List): A list of images found in the page.
 	"""
+	# Match anything. Let subclasses worry about their own matching.
+	image_path_regex = '.*'
+
 	def __init__(self, post_id, url, body, images=None):
 		super(BaseCraigslistAd, self).__init__()
 		self.post_id = post_id
@@ -46,19 +49,18 @@ class BaseCraigslistAd(object):
 		Raises:
 			InvalidImagePathException
 		"""
-		NotImplementedError
+		if not re.match(self.image_path_regex, pth):
+			raise InvalidImagePathException
 
 
 class CraigslistAd(BaseCraigslistAd):
 	"""Live posting hosted on craigslist.org"""
-	def _validate_image_path(self, pth):
-		pass
+	image_path_regex = r'^https://images\.craigslist\.org/\w+\.jpg$'
 
 
 class AdCache(BaseCraigslistAd):
 	"""Downloaded, local instance of an ad."""
-	def _validate_image_path(self, pth):
-		pass
+	image_path_regex = r'^/[\./\w]+\.jpg$'
 
 
 def scrape_url(url):
