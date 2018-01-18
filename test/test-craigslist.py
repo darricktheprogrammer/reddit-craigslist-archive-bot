@@ -1,11 +1,8 @@
 import unittest
+from pathlib import Path
 
 from archivebot import craigslist
 from archivebot.craigslist import InvalidIdException, InvalidImagePathException
-
-
-# TODO
-# test scraping data
 
 
 class TestIdScraper(unittest.TestCase):
@@ -74,20 +71,65 @@ class TestCraigslistAd(unittest.TestCase):
 				)
 
 
-class TestUrlScraper2(unittest.TestCase):
+class TestPageScraper(unittest.TestCase):
 	"""
-	There will usually only be one craigslist url, but because there can be
-	more than one, `scrape_url` always returns a list.
-	"""
-	# def test_ScrapeUrl_GivenUrl_ReturnsId(self):
-	# 	url = 'https://indianapolis.craigslist.org/bar/d/bears/6451661128.html'
-	# 	self.assertEqual(craigslist.id_from_url(url), '6451661128')
+	Test that the craigslist post page is scraped correctly.
 
-	# def test_IdFromUrl_GivenInvalidUrl_ThrowsError(self):
-	# 	url = 'https://indianapolis.craigslist.org/bar/d/bears/645166112.html'
-	# 	with self.assertRaises(InvalidIdException):
-	# 		craigslist.id_from_url(url)
-	pass
+	There are several saved documents corresponding to the html source of
+	conditions that can be found in a post (no images, only one image, etc.)
+	They are located in [...]/test/test_data/cl-*.html
+	"""
+	def setUp(self):
+		self.data_dir = Path(__file__).parent / 'test_data'
+
+	def _read_test_file(self, fp):
+		with open(fp, 'r') as f:
+			return f.read()
+
+	def test_ScrapePage_GivenPage_ScrapesPostId(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-multiple-images.html')
+		ad = craigslist.scrape_page(source)
+		self.assertEqual(ad.post_id, '6451661128')
+
+	def test_ScrapePage_GivenPage_ScrapesUrl(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-multiple-images.html')
+		ad = craigslist.scrape_page(source)
+		url = 'https://indianapolis.craigslist.org/bar/d/bears/6451661128.html'
+		self.assertEqual(ad.url, url)
+
+	def test_ScrapePage_GivenPage_ScrapesBody(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-multiple-images.html')
+		ad = craigslist.scrape_page(source)
+		partial_text = 'Asking 200 cash value'
+		self.assertIn(partial_text, ad.body)
+
+	def test_ScrapePage_GivenLongBody_ScrapesWholeBody(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-single-formatted-html.html')
+		ad = craigslist.scrape_page(source)
+		partial_text = 'a Luxe Living Apartment Community'
+		self.assertIn(partial_text, ad.body)
+
+	def test_ScrapePage_GivenFormattedBody_ConvertsBodyToMarkdown(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-single-formatted-html.html')
+		ad = craigslist.scrape_page(source)
+		self.assertIn('**Features**', ad.body)
+		self.assertNotIn('<p>', ad.body)
+		self.assertNotIn('<br>', ad.body)
+
+	def test_ScrapePage_GivenMultipleImages_ScrapesAllImages(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-multiple-images.html')
+		ad = craigslist.scrape_page(source)
+		self.assertEqual(len(ad.images), 5)
+
+	def test_ScrapePage_GivenSingleImage_ScrapesImage(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-single-image.html')
+		ad = craigslist.scrape_page(source)
+		self.assertEqual(len(ad.images), 1)
+
+	def test_ScrapePage_GivenNoImages_ReturnsNoImages(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-no-images.html')
+		ad = craigslist.scrape_page(source)
+		self.assertEqual(len(ad.images), 0)
 
 
 if __name__ == '__main__':
