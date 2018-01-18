@@ -103,58 +103,6 @@ class TestBot(unittest.TestCase):
 		self.mock_comment.reply.assert_called()
 
 
-# This is outside the class to help preserve formatting while still being able
-# to preserve indentation
-expected_format_with_multiple_images = '''This Craigslist post has been archived so it can still be viewed after expiration.
-
-[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)
-
-
-> ### Post title ###
->
-> Post description line 1.
->
-> Post description line 2.
->
-> [image 1](https://i.imgur.com/abcd001.jpg) | [image 2](https://i.imgur.com/abcd002.jpg) | [image 3](https://i.imgur.com/abcd001.jpg)
-
-***
-
-[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'''
-
-expected_format_with_single_image = '''This Craigslist post has been archived so it can still be viewed after expiration.
-
-[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)
-
-
-> ### Post title ###
->
-> Post description line 1.
->
-> Post description line 2.
->
-> [image 1](https://i.imgur.com/abcd001.jpg)
-
-***
-
-[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'''
-
-expected_format_with_no_images = '''This Craigslist post has been archived so it can still be viewed after expiration.
-
-[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)
-
-
-> ### Post title ###
->
-> Post description line 1.
->
-> Post description line 2.
-
-***
-
-[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'''
-
-
 class TestFormat(unittest.TestCase):
 	def setUp(self):
 		images = [
@@ -233,6 +181,59 @@ class TestFormat(unittest.TestCase):
 		a.images = []
 		self.assertIn('> Post description line 2.\n', formatter.format(a))
 		self.assertNotIn('> Post description line 2.\n>', formatter.format(a))
+
+	def test_Formatter_GivenMultipleImages_ReturnsCorrectFullReply(self):
+		expected_reply = (
+			'This Craigslist post has been archived so it can continue to be viewed after expiration.\n\n'
+			'[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)\n\n'
+			'> ### Post title ###\n'
+			'>\n'
+			'> Post description line 1.\n'
+			'>\n'
+			'> Post description line 2.\n'
+			'>\n'
+			'> [image 1](https://i.imgur.com/abcd001.jpg) | [image 2](https://i.imgur.com/abcd002.jpg) | [image 3](https://i.imgur.com/abcd003.jpg)\n\n'
+			'***\n\n'
+			'[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'
+			)
+		formatter = bot.PostFormatter()
+		self.assertEqual(expected_reply, formatter.format(self.archive))
+
+	def test_Formatter_GivenSingleImage_ReturnsCorrectFullReply(self):
+		expected_reply = (
+			'This Craigslist post has been archived so it can continue to be viewed after expiration.\n\n'
+			'[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)\n\n'
+			'> ### Post title ###\n'
+			'>\n'
+			'> Post description line 1.\n'
+			'>\n'
+			'> Post description line 2.\n'
+			'>\n'
+			'> [image 1](https://i.imgur.com/abcd001.jpg)\n\n'
+			'***\n\n'
+			'[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'
+			)
+		a = deepcopy(self.archive)
+		a.images = a.images[:1]
+		formatter = bot.PostFormatter()
+		self.assertEqual(expected_reply, formatter.format(a))
+
+	def test_Formatter_GivenNoImages_ReturnsCorrectFullReply(self):
+		expected_reply = (
+			'This Craigslist post has been archived so it can continue to be viewed after expiration.\n\n'
+			'[original post](http://indianapolis.craigslist.org/bar/d/bears/6451661128.html) | [imgur album](https://imgur.com/a/zzzz1) | [screenshot](https://i.imgur.com/abcd000.jpg)\n\n'
+			'> ### Post title ###\n'
+			'>\n'
+			'> Post description line 1.\n'
+			'>\n'
+			'> Post description line 2.\n\n'
+			'***\n\n'
+			'[^github](https://github.com/darricktheprogrammer/reddit-cl-bot) ^| [^send ^message/report](/#)'
+			)
+		a = deepcopy(self.archive)
+		a.images = []
+		formatter = bot.PostFormatter()
+		self.assertEqual(expected_reply, formatter.format(a))
 
 
 if __name__ == '__main__':
