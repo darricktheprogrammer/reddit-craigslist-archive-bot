@@ -1,4 +1,18 @@
 import re
+import logging
+
+import requests
+
+
+LOG = logging.getLogger(__name__)
+
+
+class PageNotFoundError(Exception):
+	pass
+
+
+class PageUnavailableError(Exception):
+	pass
 
 
 def extract_urls(post):
@@ -13,6 +27,32 @@ def extract_urls(post):
 		0 or more craigslist post urls
 	"""
 	return re.findall(r'[\w\.:/]+?craigslist.org.+?.*?\.html', post)
+
+
+def request_page(url):
+	"""
+	Get the html source of a webpage.
+
+	Args:
+		url (String):
+	Returns:
+		String
+
+		The HTML source of the given url
+	"""
+	r = requests.get(url)
+	if r.ok:
+		LOG.info('Page requested: {}'.format(url))
+		return r.text
+	elif r.status_code == 404:
+		msg = 'No page at url: {}'.format(url)
+		LOG.error(msg)
+		raise PageNotFoundError(msg)
+	else:
+		msg = 'Page unavailable for unknown reason (status code {}): {}'
+		msg = msg.format(r.status_code, url)
+		LOG.error(msg)
+		raise PageUnavailableError(msg)
 
 
 class RedditPost(object):
