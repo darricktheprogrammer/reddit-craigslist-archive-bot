@@ -4,6 +4,12 @@ from archivebot import craigslist
 from archivebot.craigslist import InvalidIdException
 
 
+# TODO
+# Fix the leftover UrlScraper stuff. It should have been changed to id_from_url
+# test image path validation
+# test scraping data
+
+
 class TestUrlScraper(unittest.TestCase):
 	"""
 	There will usually only be one craigslist url, but because there can be
@@ -17,6 +23,22 @@ class TestUrlScraper(unittest.TestCase):
 		url = 'https://indianapolis.craigslist.org/bar/d/bears/645166112.html'
 		with self.assertRaises(InvalidIdException):
 			craigslist.id_from_url(url)
+
+
+class TestUrlScraper2(unittest.TestCase):
+	"""
+	There will usually only be one craigslist url, but because there can be
+	more than one, `scrape_url` always returns a list.
+	"""
+	# def test_ScrapeUrl_GivenUrl_ReturnsId(self):
+	# 	url = 'https://indianapolis.craigslist.org/bar/d/bears/6451661128.html'
+	# 	self.assertEqual(craigslist.id_from_url(url), '6451661128')
+
+	# def test_IdFromUrl_GivenInvalidUrl_ThrowsError(self):
+	# 	url = 'https://indianapolis.craigslist.org/bar/d/bears/645166112.html'
+	# 	with self.assertRaises(InvalidIdException):
+	# 		craigslist.id_from_url(url)
+	pass
 
 
 if __name__ == '__main__':
