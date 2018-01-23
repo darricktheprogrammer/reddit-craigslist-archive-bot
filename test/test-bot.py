@@ -140,7 +140,7 @@ class TestFormat(unittest.TestCase):
 			'https://i.imgur.com/abcd002.jpg',
 			'https://i.imgur.com/abcd003.jpg'
 			]
-		self.ad = Mock(
+		self.ad = custommodels.CraigslistAd(
 			body='Post description line 1.\n\nPost description line 2.',
 			url='http://indianapolis.craigslist.org/bar/d/bears/6451661128.html',
 			title='Post title'
