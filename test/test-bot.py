@@ -3,7 +3,7 @@ import logging
 from copy import deepcopy
 from unittest.mock import Mock
 
-from archivebot import bot
+from archivebot import bot, custommodels
 
 
 # disable application logging during tests
@@ -140,14 +140,14 @@ class TestFormat(unittest.TestCase):
 			'https://i.imgur.com/abcd002.jpg',
 			'https://i.imgur.com/abcd003.jpg'
 			]
-		self.ad = Mock(
+		self.ad = custommodels.CraigslistAd(
+			title='Post title',
 			body='Post description line 1.\n\nPost description line 2.',
 			url='http://indianapolis.craigslist.org/bar/d/bears/6451661128.html',
-			title='Post title'
 			)
-		self.archive = bot.Archive(
-			'https://imgur.com/a/zzzz1', 'xxx',
-			self.ad, 'https://i.imgur.com/abcd000.jpg',
+		self.archive = custommodels.Archive(
+			url='https://imgur.com/a/zzzz1', title='xxx',
+			ad=self.ad, screenshot='https://i.imgur.com/abcd000.jpg',
 			images=images)
 
 	def test_Formatter_GivenArchive_FormatsTitle(self):
