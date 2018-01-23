@@ -44,6 +44,7 @@ class BaseCraigslistAd(CustomModel):
 	Represents a Craigslist ad and all of its components
 
 	Args:
+		title (String): The title of the post
 		post_id (String): The id of the post as found in the url and in the
 			`post id` section at the bottom of the page.
 		url (String):
