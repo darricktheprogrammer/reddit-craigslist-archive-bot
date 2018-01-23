@@ -40,7 +40,7 @@ def scrape_page(html):
 	# `set` to remove duplicates.
 	# `str` to turn `None` into an iterable so comparison doesn't fail.
 	images = list(set([link for link in links if '600x450' in str(link)]))
-	return CraigslistAd(post_id, url, body, images=images)
+	return CraigslistAd(post_id=post_id, url=url, body=body, images=images)
 
 
 def id_from_url(url):

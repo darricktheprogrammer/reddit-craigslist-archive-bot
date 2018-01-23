@@ -1,12 +1,12 @@
 import re
 
-from peewee import SqliteDatabase, Model, CharField, ForeignKeyField
+from peewee import SqliteDatabase, Model, CharField, ForeignKeyField, TextField
 
 from .errors import InvalidImagePathException
 
 
 # By using None instead of defining the database, any database settings can be
-# defined at runtime
+# defined at runtime.
 DATABASE = SqliteDatabase(None)
 
 
@@ -53,13 +53,13 @@ class BaseCraigslistAd(CustomModel):
 	"""
 	# Match anything. Let subclasses worry about their own matching.
 	image_path_regex = '.*'
+	post_id = CharField(index=True, max_length=10)
+	url = CharField()
+	body = TextField()
+	images = ImageListField(default=lambda: [])
 
-	def __init__(self, post_id, url, body, images=None):
-		super(BaseCraigslistAd, self).__init__()
-		self.post_id = post_id
-		self.url = url
-		self.body = body
-		self.images = images or []
+	def __init__(self, *args, **kwargs):
+		super(BaseCraigslistAd, self).__init__(*args, **kwargs)
 		for image in self.images:
 			self._validate_image_path(image)
 
@@ -113,6 +113,11 @@ class Archive(CustomModel):
 	"""
 	url = CharField()
 	title = CharField()
-	ad = ForeignKeyField(BaseCraigslistAd)
+	ad = ForeignKeyField(CraigslistAd)
 	screenshot = CharField()
 	images = ImageListField(default=lambda: [])
+
+	def save(self, *args, **kwargs):
+		# The ad must be saved first, otherwise the ForeignKey points to nothing
+		self.ad.save(*args, **kwargs)
+		return super(Archive, self).save(*args, **kwargs)

@@ -1,8 +1,9 @@
 import unittest
+from unittest.mock import Mock, patch
 from pathlib import Path
 
 from archivebot import craigslist
-from archivebot.custommodels import AdCache
+from archivebot.custommodels import BaseCraigslistAd, CraigslistAd, AdCache
 from archivebot.errors import InvalidIdException, InvalidImagePathException
 
 
@@ -31,7 +32,8 @@ class TestCraigslistAd(unittest.TestCase):
 			]
 
 	def test_CraigslistAd_GivenNoImages_ReturnsAdInstance(self):
-		ad = craigslist.CraigslistAd('1234567890', 'a_url', 'body_text')
+		ad = craigslist.CraigslistAd(
+			post_id='1234567890', url='a_url', body='body_text')
 		self.assertEqual(ad.post_id, '1234567890')
 		self.assertEqual(ad.url, 'a_url')
 		self.assertEqual(ad.body, 'body_text')
@@ -39,8 +41,8 @@ class TestCraigslistAd(unittest.TestCase):
 
 	def test_CraigslistAd_GivenImages_ReturnsAdInstance(self):
 		ad = craigslist.CraigslistAd(
-			'1234567890', 'a_url',
-			'body_text', images=self.remote_images
+			post_id='1234567890', url='a_url',
+			body='body_text', images=self.remote_images
 			)
 		self.assertEqual(ad.post_id, '1234567890')
 		self.assertEqual(ad.url, 'a_url')
@@ -50,14 +52,14 @@ class TestCraigslistAd(unittest.TestCase):
 	def test_CraigslistAd_GivenLocalImages_RaisesError(self):
 		with self.assertRaises(InvalidImagePathException):
 			craigslist.CraigslistAd(
-				'1234567890', 'a_url',
-				'body_text', images=self.local_images
+				post_id='1234567890', url='a_url',
+				body='body_text', images=self.local_images
 				)
 
 	def test_AdCache_GivenImages_ReturnsAdInstance(self):
 		ad = AdCache(
-			'1234567890', 'a_url',
-			'body_text', images=self.local_images
+			post_id='1234567890', url='a_url',
+			body='body_text', images=self.local_images
 			)
 		self.assertEqual(ad.post_id, '1234567890')
 		self.assertEqual(ad.url, 'a_url')
@@ -67,8 +69,8 @@ class TestCraigslistAd(unittest.TestCase):
 	def test_AdCache_GivenRemoteImages_RaisesError(self):
 		with self.assertRaises(InvalidImagePathException):
 			AdCache(
-				'1234567890', 'a_url',
-				'body_text', images=self.remote_images
+				post_id='1234567890', url='a_url',
+				body='body_text', images=self.remote_images
 				)
 
 
