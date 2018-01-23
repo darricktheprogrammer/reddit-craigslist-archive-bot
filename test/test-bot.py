@@ -146,8 +146,8 @@ class TestFormat(unittest.TestCase):
 			title='Post title'
 			)
 		self.archive = bot.Archive(
-			'https://imgur.com/a/zzzz1', 'xxx',
-			self.ad, 'https://i.imgur.com/abcd000.jpg',
+			url='https://imgur.com/a/zzzz1', title='xxx',
+			ad=self.ad, screenshot='https://i.imgur.com/abcd000.jpg',
 			images=images)
 
 	def test_Formatter_GivenArchive_FormatsTitle(self):

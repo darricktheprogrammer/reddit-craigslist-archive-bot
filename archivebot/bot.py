@@ -2,8 +2,14 @@ import re
 import logging
 
 import requests
+from peewee import SqliteDatabase, Model, CharField, ForeignKeyField
+
+from .customfields import ImageListField
 
 
+# By using None instead of defining the database, any database settings can be
+# defined at runtime
+DATABASE = SqliteDatabase(None)
 LOG = logging.getLogger(__name__)
 
 
@@ -99,7 +105,24 @@ class RedditPost(object):
 		return self._original_post.reply(body)
 
 
-class Archive(object):
+class CustomModel(Model):
+	"""
+	Base peewee subclass for defining the database.
+
+	See  http://docs.peewee-orm.com/en/latest/peewee/models.html#models-and-fields
+	for peewee's recommended usage.
+	"""
+	class Meta:
+		database = DATABASE
+
+
+def image_list_default():
+	"""
+	Helper for Archive default, so all instances don't share the same reference.
+	"""
+	return []
+
+class Archive(CustomModel):
 	"""
 	Representation of an Imgur album in Archive format.
 
@@ -117,13 +140,12 @@ class Archive(object):
 	Returns:
 		Archive
 	"""
-	def __init__(self, url, title, ad, screenshot, images=None):
-		super(Archive, self).__init__()
-		self.url = url
-		self.title = title
-		self.ad = ad
-		self.screenshot = screenshot
-		self.images = images or []
+	url = CharField()
+	title = CharField()
+	# ad = ForeignKeyField()
+	ad = CharField()
+	screenshot = CharField()
+	images = ImageListField(default=image_list_default)
 
 
 class PostFormatter(object):
