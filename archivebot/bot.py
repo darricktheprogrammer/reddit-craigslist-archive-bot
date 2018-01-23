@@ -93,9 +93,6 @@ class RedditPost(object):
 		return self._original_post.reply(body)
 
 
-
-
-
 class PostFormatter(object):
 	"""
 	Formats a RedditPost in markdown to reply to the original post.
