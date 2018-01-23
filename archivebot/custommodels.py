@@ -22,10 +22,10 @@ class ImageListField(CharField):
 	for more information on peewee custom fields.
 	"""
 	def db_value(self, value):
-		return '%%'.format(value)
+		return '%%'.join(value)
 
 	def python_value(self, value):
-		return '%%'.split(value)
+		return value.split('%%')
 
 
 class CustomModel(Model):
