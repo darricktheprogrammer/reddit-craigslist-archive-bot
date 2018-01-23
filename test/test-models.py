@@ -23,5 +23,37 @@ class TestArchive(unittest.TestCase):
 		self.assertEqual(len(archive2.images), 0)
 
 
+class TestCraigslistAd(unittest.TestCase):
+	def setUp(self):
+		self.remote_images = [
+			'https://images.craigslist.org/00303_hvg2dCTqGMm_600x450.jpg',
+			'https://images.craigslist.org/00d0d_faugXYQcX9f_600x450.jpg',
+			'https://images.craigslist.org/00d0d_ftW9aoMNni1_600x450.jpg',
+			]
+		self.local_images = [
+			'/tmp/00303_hvg2dCTqGMm_600x450.jpg',
+			'/tmp/00d0d_faugXYQcX9f_600x450.jpg',
+			'/tmp/00d0d_ftW9aoMNni1_600x450.jpg',
+			]
+
+	def test_CraigslistAd_UpdatingToLocalImages_ThrowsError(self):
+		ad = CraigslistAd(post_id='', url='', body='', images=self.remote_images)
+		with self.assertRaises(InvalidImagePathException):
+			ad.images = self.local_images
+
+	def test_CraigslistAd_UpdatingToRemoteImages_ValidatesImages(self):
+		ad = CraigslistAd(post_id='', url='', body='')
+		ad.images = self.remote_images
+
+	def test_AdCache_UpdatingToRemoteImages_ThrowsError(self):
+		ad = AdCache(post_id='', url='', body='', images=self.local_images)
+		with self.assertRaises(InvalidImagePathException):
+			ad.images = self.remote_images
+
+	def test_AdCache_UpdatingToLocalImages_ValidatesImages(self):
+		ad = AdCache(post_id='', url='', body='')
+		ad.images = self.local_images
+
+
 if __name__ == '__main__':
 	unittest.main()

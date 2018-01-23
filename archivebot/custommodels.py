@@ -56,12 +56,22 @@ class BaseCraigslistAd(CustomModel):
 	post_id = CharField(index=True, max_length=10)
 	url = CharField()
 	body = TextField()
-	images = ImageListField(default=lambda: [])
+	_images = ImageListField(default=lambda: [], db_column='images')
 
 	def __init__(self, *args, **kwargs):
 		super(BaseCraigslistAd, self).__init__(*args, **kwargs)
 		for image in self.images:
 			self._validate_image_path(image)
+
+	@property
+	def images(self):
+		return self._images
+
+	@images.setter
+	def images(self, value):
+		for image in value:
+			self._validate_image_path(image)
+		self._images = value
 
 	def _validate_image_path(self, pth):
 		"""
