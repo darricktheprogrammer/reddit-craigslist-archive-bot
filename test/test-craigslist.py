@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 
 from archivebot import craigslist
-from archivebot.craigslist import InvalidIdException, InvalidImagePathException
+from archivebot.errors import InvalidIdException, InvalidImagePathException
 
 
 class TestIdScraper(unittest.TestCase):

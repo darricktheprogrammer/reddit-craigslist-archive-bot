@@ -5,20 +5,13 @@ import requests
 from peewee import SqliteDatabase, Model, CharField, ForeignKeyField
 
 from .customfields import ImageListField
+from .errors import PageNotFoundError, PageUnavailableError
 
 
 # By using None instead of defining the database, any database settings can be
 # defined at runtime
 DATABASE = SqliteDatabase(None)
 LOG = logging.getLogger(__name__)
-
-
-class PageNotFoundError(Exception):
-	pass
-
-
-class PageUnavailableError(Exception):
-	pass
 
 
 def extract_urls(post):

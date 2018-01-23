@@ -4,14 +4,6 @@ from bs4 import BeautifulSoup
 from html2text import html2text
 
 
-class InvalidIdException(Exception):
-	pass
-
-
-class InvalidImagePathException(Exception):
-	pass
-
-
 class BaseCraigslistAd(object):
 	"""
 	Represents a Craigslist ad and all of its components
@@ -64,6 +56,7 @@ class CraigslistAd(BaseCraigslistAd):
 class AdCache(BaseCraigslistAd):
 	"""Downloaded, local instance of an ad."""
 	image_path_regex = r'^/[\./\w]+\.jpg$'
+from .errors import InvalidIdException
 
 
 def scrape_page(html):
