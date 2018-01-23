@@ -3,7 +3,7 @@ import logging
 from copy import deepcopy
 from unittest.mock import Mock
 
-from archivebot import bot
+from archivebot import bot, custommodels
 
 
 # disable application logging during tests
@@ -145,7 +145,7 @@ class TestFormat(unittest.TestCase):
 			url='http://indianapolis.craigslist.org/bar/d/bears/6451661128.html',
 			title='Post title'
 			)
-		self.archive = bot.Archive(
+		self.archive = custommodels.Archive(
 			url='https://imgur.com/a/zzzz1', title='xxx',
 			ad=self.ad, screenshot='https://i.imgur.com/abcd000.jpg',
 			images=images)

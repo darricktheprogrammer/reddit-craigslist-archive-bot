@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from archivebot import craigslist
+from archivebot.custommodels import AdCache
 from archivebot.errors import InvalidIdException, InvalidImagePathException
 
 
@@ -54,7 +55,7 @@ class TestCraigslistAd(unittest.TestCase):
 				)
 
 	def test_AdCache_GivenImages_ReturnsAdInstance(self):
-		ad = craigslist.AdCache(
+		ad = AdCache(
 			'1234567890', 'a_url',
 			'body_text', images=self.local_images
 			)
@@ -65,7 +66,7 @@ class TestCraigslistAd(unittest.TestCase):
 
 	def test_AdCache_GivenRemoteImages_RaisesError(self):
 		with self.assertRaises(InvalidImagePathException):
-			craigslist.AdCache(
+			AdCache(
 				'1234567890', 'a_url',
 				'body_text', images=self.remote_images
 				)

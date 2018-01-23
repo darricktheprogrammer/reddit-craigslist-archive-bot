@@ -2,15 +2,10 @@ import re
 import logging
 
 import requests
-from peewee import SqliteDatabase, Model, CharField, ForeignKeyField
 
-from .customfields import ImageListField
 from .errors import PageNotFoundError, PageUnavailableError
 
 
-# By using None instead of defining the database, any database settings can be
-# defined at runtime
-DATABASE = SqliteDatabase(None)
 LOG = logging.getLogger(__name__)
 
 
@@ -98,47 +93,7 @@ class RedditPost(object):
 		return self._original_post.reply(body)
 
 
-class CustomModel(Model):
-	"""
-	Base peewee subclass for defining the database.
 
-	See  http://docs.peewee-orm.com/en/latest/peewee/models.html#models-and-fields
-	for peewee's recommended usage.
-	"""
-	class Meta:
-		database = DATABASE
-
-
-def image_list_default():
-	"""
-	Helper for Archive default, so all instances don't share the same reference.
-	"""
-	return []
-
-class Archive(CustomModel):
-	"""
-	Representation of an Imgur album in Archive format.
-
-	Args:
-		url (String): The url to the entire Imgur album
-		title (String): The title of the Imgur album. It should be something
-			along the lines of
-			`reddit-cl-bot archive $CraigslistAd.id`
-		ad (CraigslistAd, AdCache): The original ad that is being archived
-		screenshot (String): Direct url to the Craigslist post screenshot which
-			is the first image in the album.
-	Kwargs:
-		images (List): (optional) A list of direct urls to the images found in
-						the Craigslist post.
-	Returns:
-		Archive
-	"""
-	url = CharField()
-	title = CharField()
-	# ad = ForeignKeyField()
-	ad = CharField()
-	screenshot = CharField()
-	images = ImageListField(default=image_list_default)
 
 
 class PostFormatter(object):
