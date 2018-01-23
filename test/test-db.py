@@ -29,6 +29,7 @@ class DatabaseTest(unittest.TestCase):
 			]
 
 		self.ad = CraigslistAd(
+			title='Post title',
 			post_id='1234567890',
 			body='Post description line 1.\n\nPost description line 2.',
 			url='http://indianapolis.craigslist.org/bar/d/bears/6451661128.html',
@@ -56,6 +57,7 @@ class DatabaseIO(DatabaseTest):
 		ad = CraigslistAd.get(CraigslistAd.post_id == '1234567890')
 		archive = Archive.get(Archive.ad == ad)
 		self.assertEqual(archive.url, 'https://imgur.com/a/zzzz1')
+		self.assertEqual(archive.ad.title, 'Post title')
 		self.assertEqual(archive.ad.post_id, '1234567890')
 		self.assertEqual(archive.ad.url, 'http://indianapolis.craigslist.org/bar/d/bears/6451661128.html')
 

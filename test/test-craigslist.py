@@ -33,7 +33,8 @@ class TestCraigslistAd(unittest.TestCase):
 
 	def test_CraigslistAd_GivenNoImages_ReturnsAdInstance(self):
 		ad = craigslist.CraigslistAd(
-			post_id='1234567890', url='a_url', body='body_text')
+			title='Post title', post_id='1234567890', url='a_url', body='body_text')
+		self.assertEqual(ad.title, 'Post title')
 		self.assertEqual(ad.post_id, '1234567890')
 		self.assertEqual(ad.url, 'a_url')
 		self.assertEqual(ad.body, 'body_text')
@@ -41,9 +42,10 @@ class TestCraigslistAd(unittest.TestCase):
 
 	def test_CraigslistAd_GivenImages_ReturnsAdInstance(self):
 		ad = craigslist.CraigslistAd(
-			post_id='1234567890', url='a_url',
+			title='Post title', post_id='1234567890', url='a_url',
 			body='body_text', images=self.remote_images
 			)
+		self.assertEqual(ad.title, 'Post title')
 		self.assertEqual(ad.post_id, '1234567890')
 		self.assertEqual(ad.url, 'a_url')
 		self.assertEqual(ad.body, 'body_text')
@@ -52,15 +54,16 @@ class TestCraigslistAd(unittest.TestCase):
 	def test_CraigslistAd_GivenLocalImages_RaisesError(self):
 		with self.assertRaises(InvalidImagePathException):
 			craigslist.CraigslistAd(
-				post_id='1234567890', url='a_url',
+				title='Post title', post_id='1234567890', url='a_url',
 				body='body_text', images=self.local_images
 				)
 
 	def test_AdCache_GivenImages_ReturnsAdInstance(self):
 		ad = AdCache(
-			post_id='1234567890', url='a_url',
+			title='Post title', post_id='1234567890', url='a_url',
 			body='body_text', images=self.local_images
 			)
+		self.assertEqual(ad.title, 'Post title')
 		self.assertEqual(ad.post_id, '1234567890')
 		self.assertEqual(ad.url, 'a_url')
 		self.assertEqual(ad.body, 'body_text')
@@ -69,7 +72,7 @@ class TestCraigslistAd(unittest.TestCase):
 	def test_AdCache_GivenRemoteImages_RaisesError(self):
 		with self.assertRaises(InvalidImagePathException):
 			AdCache(
-				post_id='1234567890', url='a_url',
+				title='Post title', post_id='1234567890', url='a_url',
 				body='body_text', images=self.remote_images
 				)
 
@@ -99,6 +102,12 @@ class TestPageScraper(unittest.TestCase):
 		ad = craigslist.scrape_page(source)
 		url = 'https://indianapolis.craigslist.org/bar/d/bears/6451661128.html'
 		self.assertEqual(ad.url, url)
+
+	def test_ScrapePage_GivenPage_ScrapesTitle(self):
+		source = self._read_test_file(self.data_dir / 'cl-html-no-images.html')
+		ad = craigslist.scrape_page(source)
+		title = 'Free-Curb Alert: tv stand, dresser, carpet'
+		self.assertEqual(ad.title, title)
 
 	def test_ScrapePage_GivenPage_ScrapesBody(self):
 		source = self._read_test_file(self.data_dir / 'cl-html-multiple-images.html')

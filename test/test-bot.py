@@ -141,9 +141,9 @@ class TestFormat(unittest.TestCase):
 			'https://i.imgur.com/abcd003.jpg'
 			]
 		self.ad = custommodels.CraigslistAd(
+			title='Post title',
 			body='Post description line 1.\n\nPost description line 2.',
 			url='http://indianapolis.craigslist.org/bar/d/bears/6451661128.html',
-			title='Post title'
 			)
 		self.archive = custommodels.Archive(
 			url='https://imgur.com/a/zzzz1', title='xxx',

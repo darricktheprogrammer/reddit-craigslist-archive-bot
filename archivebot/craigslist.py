@@ -28,6 +28,7 @@ def scrape_page(html):
 	post_id_paragraph = soup.find_all('p', class_='postinginfo')[1].get_text()
 	post_id = re.search(r'\d{10}', post_id_paragraph).group(0)
 
+	title = soup.find('span', id='titletextonly').get_text()
 	url = soup.find('link', rel='canonical').get('href')
 	body = soup.find('section', id='postingbody').contents[2:]
 	body = '\n'.join([str(line) for line in body]).strip()
@@ -40,7 +41,10 @@ def scrape_page(html):
 	# `set` to remove duplicates.
 	# `str` to turn `None` into an iterable so comparison doesn't fail.
 	images = list(set([link for link in links if '600x450' in str(link)]))
-	return CraigslistAd(post_id=post_id, url=url, body=body, images=images)
+	return CraigslistAd(
+		title=title, post_id=post_id, url=url,
+		body=body, images=images
+		)
 
 
 def id_from_url(url):

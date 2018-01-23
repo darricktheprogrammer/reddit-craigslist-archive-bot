@@ -53,6 +53,7 @@ class BaseCraigslistAd(CustomModel):
 	"""
 	# Match anything. Let subclasses worry about their own matching.
 	image_path_regex = '.*'
+	title = CharField()
 	post_id = CharField(index=True, max_length=10)
 	url = CharField()
 	body = TextField()
