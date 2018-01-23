@@ -93,12 +93,6 @@ class AdCache(BaseCraigslistAd):
 	image_path_regex = r'^/[\./\w]+\.jpg$'
 
 
-def image_list_default():
-	"""
-	Helper for Archive default, so all instances don't share the same reference.
-	"""
-	return []
-
 class Archive(CustomModel):
 	"""
 	Representation of an Imgur album in Archive format.
@@ -121,4 +115,4 @@ class Archive(CustomModel):
 	title = CharField()
 	ad = ForeignKeyField(BaseCraigslistAd)
 	screenshot = CharField()
-	images = ImageListField(default=image_list_default)
+	images = ImageListField(default=lambda: [])
